@@ -1,15 +1,12 @@
 <?php
-
 // Sample TASK: get past-2015 movies from IMDB Top 250 and write to MySQL DB. Take cover images as well
 // ----------------------------------------------------------------------------------------------------
 
 require '../parsemx.php';
-
 begin_debug();
 
-$q_database = 'imdb_sample';
 // By default, localhost root/root MySQL user is used. Set $q_server, $q_user, $q_password to override
-
+$q_database = 'imdb_sample';
 q("CREATE TABLE IF NOT EXISTS films (title VARCHAR(250), year SMALLINT, cover VARCHAR(250))");
 
 $http_cache = true;

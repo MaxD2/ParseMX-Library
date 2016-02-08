@@ -216,4 +216,4 @@ This functions are equivalents of regular PHP functions:
 
 `translit($name)`
 
-`g($var_name, $default = false)` - returns the value of global variable, or $default if it doesn't exist
+`g($var_name, $default = false)` - returns the value of global variable, or `$default` if it doesn't exist
