@@ -17,7 +17,7 @@ http_get('http://www.imdb.com/chart/top/');
 $titles = tags_text('.titleColumn a');
 ```
 
-Here is more complicated (sample)[https://github.com/MaxD2/ParseMX-Library/blob/master/samples/imdb.php] and its (result)[http://devs.mx/parsemx-lib/imdb.php].
+Here is more complicated [sample](https://github.com/MaxD2/ParseMX-Library/blob/master/samples/imdb.php) and its [result](http://devs.mx/parsemx-lib/imdb.php).
 
 ## HTTP Requests
 Requests params and their default values:
