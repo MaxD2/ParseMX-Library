@@ -17,7 +17,7 @@ http_get('http://www.imdb.com/chart/top/');
 $titles = tags_text('.titleColumn a');
 ```
 
-Here is more complicated [sample](https://github.com/MaxD2/ParseMX-Library/blob/master/samples/imdb.php) and its [result](http://devs.mx/parsemx-lib/imdb.php).
+Here is more complicated [Sample](https://github.com/MaxD2/ParseMX-Library/blob/master/samples/imdb.php) and its [Result](http://devs.mx/parsemx-lib/imdb.php).
 
 ## HTTP Requests
 Requests params and their default values:
@@ -40,7 +40,7 @@ All this functions return flatted HTML and fill global result vars:
 
 `http_ajax($url, $data)`
 
-`http_get_file($url, $save_path= '.', $access_path = false)` - fetch file into folder and return its name if successful. 
+`http_get_file($url, $save_path = '.', $access_path = false)` - fetch file into folder and return its name if successful. 
 `$access_path` is resulting path addition
 
 Global result vars:
@@ -61,7 +61,7 @@ source.
 
 ## Simple Data Retrieval
 
-`inside($start, $end="")` - first entry between `$start` and `$end`. If `$start` is empty, returns text from the beginning of
+`inside($start, $end = '')` - first entry between `$start` and `$end`. If `$start` is empty, returns text from the beginning of
  the source till `$end`. If `$end` is empty, returns text from `$end` till the end of the source.
  Returns `false`, if no entry was found.
 
@@ -77,11 +77,11 @@ Trailing "~" serves as not-sign, "+" as AND.
 Example: `find("~car, bike, horse + ride")` - `true`, if in the default source there is
 no "car", there is "bike", or "horse" and "ride" simultaneously.
 
-`replace($search=false, $replace='')` - replace `$search` with `$replace`. Case insensitive.
+`replace($search = false, $replace = '')` - replace `$search` with `$replace`. Case insensitive.
 If `$replace` is empty, `$search` entries are removed.
 If `$search` is empty, `$replace_file` ("replace.txt" by default) entries are used.
 
-`rreplace($search, $replace='')` - replace with REGEXP. Case insensitive.
+`rreplace($search, $replace = '')` - replace with REGEXP. Case insensitive.
 
 `replace_inside($find, $replace, $start, $end)` - replaces `$find` with `$replace` in the places starting with `$start` and ending with `$end`
 
@@ -89,21 +89,21 @@ If `$search` is empty, `$replace_file` ("replace.txt" by default) entries are us
 
 ## CSS Selectors Data Retrieval
 
-All `tag_...` functions take CSS `$selector` as param and return first value or `false` if nothing found.
-They all have `tags_...` variation, that returns array of all values.
+All `tag_...` functions take CSS `$selector` as param and return first found value or `false` if nothing found.
+They all have `tags_...` variation, that returns array of all found values.
+
+`tag_text` - plain text of tag content
+
+`tag_html` - html contents of the tag (including the tag itself)
+
+`tag_attr($selector, $attr)` - get attribute from the tag
 
 `tag_href` - `href` attr of the tag
 
 `tag_link` - link from the tag. If specified tag doesn't have one, its contents and parent tag will be searched for links
 
-`tag_text` - plain text of tag content
-
 `tag_image` - image from the tag. If specified tag doesn't have one, its contents and parent tag will be searched for images.
 Tends to find big image instead of thumb.
-
-`tag_html` - html contents of the tag (including the tag itself)
-
-`tag_attr($selector, $attr)` - get attribute from the tag
 
 `url($url)` - full url, in case of relative url it is transformed to full
 
@@ -193,14 +193,19 @@ This functions are equivalents of regular PHP functions:
 ## Other functions
 
 `filesize_string($size)` - nicely formatted file size
+
 `money($text)` - float money value from any text, automatically detects cents delimeters to obtain correct value
 
 `remove_if($needle, $source_array)` - remove all entries that contain `$needle` from $source array.
+
 `$needle` takes all the params find function takes.
 
 `shorten_text($text, $maxlen = 200)` - brakes the text at word and adds "..." if the text was shortened
+
 `unzip($file, $path = ".")` - extract ZIP file, supports URL
+
 `close_tags($http_html)` - closes unmatched tags
+
 `shred_arrays($array1, $array2, ...)` - returns array, that contains first elem from $array1, second elem from $array2 and so on.
 
 `random($param = false)` - universal random function:

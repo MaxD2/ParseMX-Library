@@ -32,3 +32,5 @@ foreach (tags_html('.titleColumn') as $film) {
 // Lets output the films from our DB
 foreach (qq("SELECT * FROM films") as $film)
     echo "<h1><img src='$film[cover]' /> $film[title] <i>($film[year])</i></h1>";
+
+// THE END
