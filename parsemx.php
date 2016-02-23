@@ -3,7 +3,7 @@
  * ParseMX - fast web data retrieval functions
  *
  * @author: MaxD - max@bukrek.net
- * @version: 1.07
+ * @version: 1.08
  */
 
 $replace_file = 'replace.txt';
@@ -166,7 +166,7 @@ function script_live() {
     set_time_limit(g('mx_script_timeout_mins')*60-20);
 }
 
-// If another instance of your script is already working, this function will finish current script.
+// If another instance of your script is already working, this Function will finish current script.
 // Call it at the beginning of your script, if you are invoking it with CRON.
 function script_check_duplicate($name = false, $timeout_mins = 5 ) {
     $timeout = $timeout_mins * 60;
@@ -188,6 +188,7 @@ function script_check_duplicate($name = false, $timeout_mins = 5 ) {
     global $mx_check_script_duplicate_name, $mx_script_timeout_mins;
     $mx_check_script_duplicate_name = $name;
     $mx_script_timeout_mins = $timeout_mins;
+    ignore_user_abort(true);
 }
 
 
@@ -336,6 +337,8 @@ function http_get($url)
         re(false); return false;
     }
 
+    $url = if_inside('', '#', $url);
+
     // Retry and cache code
     if (substr($url,0,1)!="%") {
         if (g('http_cache')) {
@@ -462,15 +465,7 @@ function http_get_file($url, $save_path= '.', $access_path = false)
         $ext = false;
     }
 
-    // Check if $save_path exists
-    $dirs = explode('/',$save_path);
-    $path = '';
-    foreach ($dirs as $dir) {
-        if (!$dir) continue;
-        if ($path) $path.='/';
-        $path.=$dir;
-        if (!file_exists($path)) mkdir($path);
-    }
+    if (!file_exists($save_path)) mkdir($save_path, 0777, true);
 
     if (!$name) {
         $l = parse_url($url);
@@ -592,7 +587,8 @@ $mx_http_code_messages = array(
     502 => "Bad Gateway",
     503 => "Service Unavailable",
     504 => "Gateway Timeout",
-    505 => "HTTP Version Not Supported");
+    505 => "HTTP Version Not Supported",
+    555 => "Download interrupted");
 
 $mx_http_code_messages_groups = array(
     1 => "Informational",
@@ -600,6 +596,58 @@ $mx_http_code_messages_groups = array(
     3 => "Redirection",
     4 => "Client Error",
     5 => "Server Error",
+);
+
+$http_user_agents = array(
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/601.4.4 (KHTML, like Gecko) Version/9.0.3 Safari/601.4.4",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.103 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.103 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:44.0) Gecko/20100101 Firefox/44.0",
+    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:43.0) Gecko/20100101 Firefox/43.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:43.0) Gecko/20100101 Firefox/43.0",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.109 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.103 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:43.0) Gecko/20100101 Firefox/43.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/601.4.4 (KHTML, like Gecko) Version/9.0.3 Safari/601.4.4",
+    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.109 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:44.0) Gecko/20100101 Firefox/44.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1; rv:43.0) Gecko/20100101 Firefox/43.0",
+    "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.103 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/601.2.7 (KHTML, like Gecko) Version/9.0.1 Safari/601.2.7",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.109 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:44.0) Gecko/20100101 Firefox/44.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36",
+    "Mozilla/5.0 (iPad; CPU OS 9_2_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13D15 Safari/601.1",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0)"
 );
 
 function http_code_message($http_code = false) {
@@ -719,15 +767,17 @@ function http_curl($url, $post = false, $file = false)
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch,CURLOPT_ENCODING , "");
-
     $user_agent = g('http_user_agent');
-    if (!$user_agent) $user_agent = 'Googlebot/2.1 (+http://www.google.com/bot.html)';
-    if ($user_agent===true) $user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36';
+    if (!$user_agent) $user_agent = 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)';
+    elseif ($user_agent===true) $user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.109 Safari/537.36';
+    elseif ($user_agent==="random")
+        $user_agent = random($GLOBALS['http_user_agents']);
+
     curl_setopt($ch, CURLOPT_USERAGENT, $user_agent);
 
     global $http_headers;
     if ($http_headers) {
-        $hheader[] = array();
+        $hheader = array();
         foreach ($http_headers as $hname=>$hval)
             $hheader[] = $hname.': '.$hval;
         curl_setopt($ch, CURLOPT_HTTPHEADER, $hheader);
@@ -772,6 +822,12 @@ function http_curl($url, $post = false, $file = false)
     global $http_code, $http_content_type;
     $http_code = curl_getinfo($ch,CURLINFO_HTTP_CODE);
     $http_content_type = curl_getinfo($ch,CURLINFO_CONTENT_TYPE);
+
+    if ($http_code==200 && curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD) > curl_getinfo($ch, CURLINFO_SIZE_DOWNLOAD)) {
+        $http_code = 555;
+        if ($file) @unlink($file);
+    }
+
     curl_close($ch);
 
     if (($http_code != 200) and ($http_code != 404) and ($http_code != 410)) {
@@ -823,7 +879,7 @@ function http_curl($url, $post = false, $file = false)
 
 function mx_debug_fetch_result($http_html) {
     static $id;
-    if (!trim($http_html)) exit;
+    if (!trim($http_html)) return;
     $id++;
     $m = "<a style='background-color:yellow' href='javascript: document.getElementById(\"fetch$id\").hidden = ! document.getElementById(\"fetch$id\").hidden'>
         [ Fetch Result ]</a>
@@ -949,6 +1005,26 @@ function insides($start, $end="", $source = false)
         }
     }
 
+    re($r); return $r;
+}
+
+// Reverse inside, first searches for $end
+function rev_inside($start, $end, $source = false)
+{
+    if ($source === false) { global $http_html; $source = &$http_html; } // Use set_source() default
+
+    $r = '';
+    $e = strripos($source, $end);
+
+    if ($e !== false) {
+        $tail = substr($source, 0, $e);
+        if ($start) $s = strripos($tail, $start);
+        else $s = 0;
+        if ($s !== false) {
+            $s += strlen($start);
+            $r = trim(substr($source, $s, $e - $s));
+        }
+    }
     re($r); return $r;
 }
 
@@ -1082,6 +1158,16 @@ function replace($search=false, $replace='', $source=false)
 {
     if ($source === false) { global $http_html; $source = $http_html; } // Use set_source() default
 
+    if (is_array($search)) {
+        foreach ($search as $i=>$s) {
+            if (is_array($replace)) $r = $replace[$i];
+            else $r = $replace;
+            $source = replace($s, $r, $source);
+        }
+        re($source);
+        return $source;
+    }
+
     if (is_array($source)) {
         foreach ($source as &$line) $line=replace($search,$replace,$line);
         $r = $source;
@@ -1109,8 +1195,8 @@ function replace($search=false, $replace='', $source=false)
                 $r = str_ireplace($search_list,$replace_list,$source);
                 re($r); return $r;
             }
-            trigger_error("File $replace_file not found at replace()");
-            return re();
+            //trigger_error("File $replace_file not found at replace()");
+            return re($source);
         } else
             if (($p=strpos($search,'*'))!==false) {
                 $before = substr($search,0,$p);
@@ -1294,7 +1380,7 @@ function tags_image($selector, $source = false) {
 function is_imagelink($img) {
     if (!strpos($img,'//')) { re(false); return false; }
     $img = strtolower($img);
-    $is_image = strpos($img,'.jpg') or strpos($img,'.jpeg') or strpos($img,'.png') or strpos($img,'.gif');
+    $is_image = strpos($img,'.jpg') || strpos($img,'.jpeg') || strpos($img,'.png') || strpos($img,'.gif');
     re($is_image); return $is_image;
 }
 
@@ -1797,6 +1883,11 @@ class nokogiri2 implements IteratorAggregate{
                 } else {
                     $a = preg_match( $reg['attr1'], $rule, $m );
                     if( $a ) {
+
+                        if (($xp=strpos($m[1],'=')) && !strpos($m[1],"'") && !strpos($m[1],'"')) { // MaxD
+                            $m[1] = substr($m[1],0, $xp)."='".substr($m[1],$xp+1)."'";
+                        }
+
                         array_push( $parts, "[@".$m[1]."]");
                         $rule = substr($rule, strlen($m[0]) );
                     }
@@ -2279,9 +2370,12 @@ function xsuccess($message) {
 }
 
 function mxshutdown() {
-    global $mx_save_start_dir, $mx_check_script_duplicate_name;
+    global $mx_save_start_dir, $mx_check_script_duplicate_name, $debug_nesting_level;
+    $debug_nesting_level = 0;
     chdir($mx_save_start_dir);
-    if ($mx_check_script_duplicate_name) mx_config_set($mx_check_script_duplicate_name."_pid");
+    if ($mx_check_script_duplicate_name) {
+        mx_config_set($mx_check_script_duplicate_name."_pid");
+    }
     $error = error_get_last();
     if($error !== NULL)
         if (($error['type']!=2) and ($error['type']!=8) and ($error['line'])) {
@@ -2297,6 +2391,9 @@ register_shutdown_function('mxshutdown');
 
 // Write message to log
 function xlog($xmessage) {
+
+    if (!error_reporting()) return $xmessage;
+
     global $log_file, $feed_file;
 
     if (!is_string($xmessage)) {
@@ -2410,7 +2507,11 @@ function filesize_string($size) {
 }
 
 function money($text) {
-    $x = preg_replace('/[^0-9.,]/i', '', $text);
+    $prices = explode('-',$text);
+    foreach ($prices as $price) {
+        $x = preg_replace('/[^0-9.,]/i', '', $price);
+        if ((int) $x > 0) break;
+    }
     if (substr($x,-3,1)==",") {
         $x = substr($x,0,-3).".".substr($x,-2);
         $x = str_replace(",","",$x);
@@ -2583,4 +2684,18 @@ function g($global_variable_name, $default = false)
         return @$GLOBALS[$global_variable_name];
 
     return $default;
+}
+
+function sku_gen($title = '', $code = false) {
+    $prefix = '';
+    foreach (explode(" ", $title) as $word) {
+        if (strlen8($word)<3) continue;
+        if (!ctype_upper($word[0])) continue;
+        $prefix .= $word[0];
+        if (strlen($prefix) > 2) break;
+    }
+
+    if (!$code) $code = substr(abs(crc32(upcase($title))), -6);
+    if (strlen($prefix)>1) $code = $prefix.'-'.$code;
+    return re($code);
 }
